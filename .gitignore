@@ -1,0 +1,8 @@
+# OpenSpec agent artifacts belong on the machine (see scripts/setup-openspec-skills-global.sh)
+.claude/skills/
+.claude/commands/opsx/
+.cursor/skills/
+.cursor/commands/opsx-*.md
+
+# Local research / scratch
+.research/
