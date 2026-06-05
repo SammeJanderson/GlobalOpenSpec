@@ -20,11 +20,18 @@ The setup script installs **openspec** and **skillshare** automatically if they 
 
 ## One-time machine setup
 
-From this repository (or anywhere on PATH):
+From this repository:
 
 ```bash
-chmod +x scripts/setup-openspec-skills-global.sh
-./scripts/setup-openspec-skills-global.sh
+make install
+```
+
+This runs a preflight environment check first, then the setup script. If any prerequisite is missing the install is aborted with a clear list of what to fix.
+
+To check your environment without installing anything:
+
+```bash
+make preflight
 ```
 
 Optional environment variables:
@@ -77,7 +84,7 @@ Use `/opsx:propose`, `/opsx:apply`, etc. via **globally synced** skills.
 
 ```bash
 npm install -g @fission-ai/openspec@latest
-./scripts/setup-openspec-skills-global.sh
+make install
 ```
 
 Or manually:
@@ -136,6 +143,6 @@ On Windows, prefer running skillshare’s PowerShell installer and use copy mode
 
 ## Verify global setup
 
-1. Run `./scripts/setup-openspec-skills-global.sh`
+1. Run `make install`
 2. Create a throwaway directory, run `openspec init --tools none`, confirm no `.claude/skills` in that repo
 3. Open Cursor or Claude Code in that directory and confirm OpenSpec skills are available (e.g. propose/apply skills listed)
