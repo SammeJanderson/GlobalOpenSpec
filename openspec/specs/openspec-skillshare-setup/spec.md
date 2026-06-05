@@ -74,6 +74,64 @@ OpenSpec skills and opsx slash-command files SHALL NOT be committed in applicati
 - **WHEN** global setup has been completed on the machine
 - **THEN** the developer can use OpenSpec workflow skills in that repo via agent-global skill paths without checking skills into git
 
+### Requirement: Setup script validates environment before any install or init
+
+Before attempting to install `openspec`, `skillshare`, or initialize the agent home, the setup script SHALL run a preflight environment check. The check SHALL validate all required prerequisites and, if any fail, report every failure together and exit with a non-zero status without performing any installation or initialization.
+
+#### Scenario: All prerequisites satisfied
+
+- **WHEN** Node.js ≥ 20.19 is available, npm is available, curl is available, and relevant directories are writable
+- **THEN** the script prints "Environment preflight passed." and continues to the install/init steps
+
+#### Scenario: Node.js version below minimum
+
+- **WHEN** `openspec` is not already on PATH and the installed Node.js version is below 20.19
+- **THEN** the script includes a "node version below required 20.19" error in the preflight failure report and exits before installing anything
+
+#### Scenario: Node.js not found
+
+- **WHEN** `openspec` is not already on PATH and `node` is not found
+- **THEN** the script includes a "node not found" error in the preflight failure report and exits before installing anything
+
+#### Scenario: npm not found
+
+- **WHEN** `openspec` is not already on PATH and `npm` is not on PATH after path refresh
+- **THEN** the script includes an "npm not found" error in the preflight failure report and exits before installing anything
+
+#### Scenario: curl not found
+
+- **WHEN** `skillshare` is not already on PATH and `curl` is not available
+- **THEN** the script includes a "curl not found" error in the preflight failure report and exits before installing anything
+
+#### Scenario: Multiple prerequisite failures reported together
+
+- **WHEN** more than one prerequisite check fails
+- **THEN** the script reports all failures in a single output block before exiting, so the user can fix everything at once
+
+#### Scenario: openspec already installed — Node.js check skipped
+
+- **WHEN** `openspec` is already on PATH before the preflight runs
+- **THEN** the Node.js version and npm checks are skipped (the installed openspec already proves a compatible runtime)
+
+#### Scenario: skillshare already installed — curl check skipped
+
+- **WHEN** `skillshare` is already on PATH before the preflight runs
+- **THEN** the curl availability check is skipped
+
+### Requirement: A Makefile provides install and preflight targets
+
+The repository SHALL provide a `Makefile` at the project root. The `install` target SHALL run the preflight check then the setup script, in that order. The `preflight` target SHALL run only the preflight check without proceeding to installation.
+
+#### Scenario: Running make install
+
+- **WHEN** the user runs `make install`
+- **THEN** `scripts/preflight.sh` runs first; if it exits 0, `scripts/setup-openspec-skills-global.sh` runs next; if preflight fails, the setup script does not run
+
+#### Scenario: Running make preflight as a dry-run
+
+- **WHEN** the user runs `make preflight`
+- **THEN** only `scripts/preflight.sh` runs and its exit code is the Make target's exit code; no installation occurs
+
 ### Requirement: Documentation describes global cross-project workflow
 
 The repository SHALL document: global one-time setup (setup script), per-project `openspec init --tools none`, refreshing after `openspec` or skillshare upgrades, and optional copy-mode workaround when symlinks fail.
